@@ -20,12 +20,6 @@ jobs:
         run: |
           Rscript -e "install.packages(c('shiny', 'rsconnect', 'ggplot2', 'dplyr', 'plotly', 'rvest', 'stringr', 'readr', 'tidyr', 'bslib'))"
 
-
-
-      - name: Install rsconnect
-        run: |
-          Rscript -e "install.packages('rsconnect')"
-
       - name: Deploy to shinyapps.io
         env:
           SHINYAPPS_NAME: ${{ secrets.SHINYAPPS_NAME }}
