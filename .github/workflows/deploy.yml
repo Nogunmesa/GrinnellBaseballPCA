@@ -18,7 +18,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages(c("shiny", "rsconnect", "ggplot2", "dplyr", "plotly", "rvest", "stringr", "readr", "tidyr", "bslib"))
+          Rscript -e "install.packages(c('shiny', 'rsconnect', 'ggplot2', 'dplyr', 'plotly', 'rvest', 'stringr', 'readr', 'tidyr', 'bslib'))"
+
 
 
       - name: Install rsconnect
