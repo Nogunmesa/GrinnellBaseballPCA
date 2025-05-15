@@ -45,9 +45,9 @@ This project was built to explore how data analytics can uncover underlying patt
 
 ## Authors
 
-- Alyssa
-- Sean 
-- Nifemi
+- Alyssa Trapp
+- Sean Tashjian
+- Nifemi Ogunmesa
   
 ## Acknowledgements
 
