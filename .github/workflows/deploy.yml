@@ -27,5 +27,4 @@ jobs:
           accountName: baseballteam
           accountToken: ${{ secrets.SHINYAPPS_TOKEN }}
           accountSecret: ${{ secrets.SHINYAPPS_SECRET }}
-          forceUpdate: true  # Ensure the app is overwritten if it already exists
           appId: 14845397 
