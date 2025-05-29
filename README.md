@@ -14,6 +14,7 @@ This R project analyzes baseball pitcher and hitter statistics using Principal C
 ```
 Final330App/
 ├──  data/                         # Contains PitcherPCA.zip and Hitters.zip
+├──  doc/                          # Contains user help guide
 ├──  Final330App.R                 # get_player_athletic_stats, get_player_edge_stats, perform_player_pca & interpret_pc
 ├── README.md
 ├── .gitignore
@@ -34,6 +35,8 @@ Performs PCA and returns both transformed data and loading vectors.
 
 ### 5. `interpret_pc(pc_loadings, type, top_n = 4)`
 Identifies top contributing stats to each principal component.
+
+**TODO** option to return the new dataset(original + scrapped) and allow user to scrape for multiple years
 
 ## Example Output
 
