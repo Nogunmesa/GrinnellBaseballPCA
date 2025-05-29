@@ -1,44 +1,24 @@
-name: Deploy Shiny App to ShinyApps.io
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
-
-      - name: Install dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: |
-            shiny
-            ggplot2
-            dplyr
-            plotly
-            rvest
-            stringr
-            readr
-            tidyr
-            bslib
-            rsconnect
-
-      - name: Deploy to shinyapps.io
-        env:
-          SHINYAPPS_NAME: ${{ secrets.SHINYAPPS_NAME }}
-          SHINYAPPS_TOKEN: ${{ secrets.SHINYAPPS_TOKEN }}
-          SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
-        run: |
-          Rscript -e "rsconnect::setAccountInfo(name=Sys.getenv('SHINYAPPS_NAME'), token=Sys.getenv('SHINYAPPS_TOKEN'), secret=Sys.getenv('SHINYAPPS_SECRET'))"
-          Rscript -e "rsconnect::deployApp(appDir='.', appName='GrinnellBaseballPCA')"
+            - name: Deploy to shinyapps.io
+  # You may pin to the exact commit or the version.
+  # uses: BDSI-Utwente/shinyapps-deploy-github-action@f745602f8cf536527835597784813b3fcc520f63
+  uses: BDSI-Utwente/shinyapps-deploy-github-action@v1
+  with:
+    # path to app, relative to repository root. Defaults to the repository root.
+    appDir: # optional
+    # comma separated list of files to publish, relative to appDir. If not provided, all files in appDir will be published.
+    appFiles: # optional
+    # path to manifest file, listing files to be deployed relative to appDir.
+    appFileManifest: # optional
+    # name of the application (typically the last part of the url, e.g. https://<account>.shinyapps.io/<appName>).
+    appName: 
+    # user-friendly title for the application
+    appTitle: # optional
+    # level of verbosity of rsconnect::deployApp(). Defaults to "normal", other options are "quiet" or "verbose".
+    logLevel: # optional, default is normal
+    # account name on shinyapps.io (typically the first part of the url, e.g. https://<account>.shinyapps.io/<appName>).
+    accountName: 
+    # access token, see https://www.shinyapps.io/admin/#/tokens. Generating a new token/secret pair for this action is recommended, so that you can revoke it without affecting other deployments.
+    accountToken: 
+    # secret, see https://www.shinyapps.io/admin/#/tokens. Generating a new token/secret pair for this action is recommended, so that you can revoke it without affecting other deployments.
+    accountSecret: 
+          
