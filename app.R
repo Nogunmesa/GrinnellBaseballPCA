@@ -313,12 +313,6 @@ ui <- dashboardPage(
               h2("Getting Started"),
               br(),
               
-              
-              ## NEW SECTION: Pitcher/Hitter Radio Button
-              h3(icon("baseball"), "Select Pitcher or Hitter"),
-              p("Before starting, make sure to choose either ", strong("Pitcher"), " or ", strong("Hitter"), " at the top of the dashboard."),
-              p("This selection determines which type of player stats you'll be working with."),
-              
               h3("Understanding the Data"),
               p("• The default dataset includes seasons from ", strong("2015 to 2023"), "."),
               p("• If you want to include ", strong("2024 or later"), ", you'll need to scrape it yourself."),
@@ -358,10 +352,20 @@ ui <- dashboardPage(
               p("• The app will perform PCA (Principal Component Analysis) to visualize player performance."),
               br(),
               
-              ## NEW SECTION: Help Guide
-              h3(icon("circle-info"), "Need Help?"),
-              p("We've added a built-in ", strong("Help Guide"), " to walk you through every step of the app."),
-              p("Use it to learn how to scrape data, upload files, and interpret PCA results.")
+              h3(icon("file-arrow-down"),"View and Download Summary"),
+              p("• Visit the ", strong("'Summary'"), " page to:"),
+              tags$ul(
+                tags$li("Review combined data from 2015–2023 plus any new years you added."),
+                tags$li("Download a full combined CSV file for future use.")
+              ),
+              br(),
+              
+              h3("Reminder About Missing Years"),
+              p("• If you skipped a year (e.g., never ran the app in 2025), and now want 2026:"),
+              tags$ul(
+                tags$li("The app will prompt you to scrape and upload 2025 first."),
+                tags$li("This ensures the full dataset is clean, complete, and consistent.")
+              )
       ),
       tabItem(tabName = "b", 
               fileInput("file1", "Choose CSV File", accept = ".csv"),
@@ -529,7 +533,7 @@ server <- function(input, output, session) {
       colnames(new_data) <- gsub("[%.]", "", colnames(new_data))
       binded <- bind_rows(base_data, new_data)
     } else {
-        binded <- base_data
+      binded <- base_data
     }
     
     perform_player_pca(binded, input$type)
