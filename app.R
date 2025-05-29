@@ -12,7 +12,7 @@ library(readr)
 library(purrr)
 library(tidyr)
 library(bslib)
-
+library(markdown)
 
 # Unzip the file (will extract PitcherPCA.csv to a temp directory)
 unzip("data/PitcherPCA.zip", exdir = tempdir())
@@ -127,10 +127,8 @@ get_player_edge_stats <- function(year, data, type){
         "&charterteamid=15#panelShareButtonsList"
       )
     )
-  
   # Initialize an empty dataframe
   all_players <- data.frame()
-  
   # Loop over each individual player
   for (i in seq_len(nrow(players))) {
     player_name <- players$Name[i]
@@ -196,6 +194,7 @@ get_player_edge_stats <- function(year, data, type){
     
   }
   print("All players processed and saved.")
+  print(all_players)
   return(all_players)
 }
 
@@ -203,7 +202,7 @@ loadings <- NULL
 
 # Reusable R function that performs PCA on a given dataframe
 perform_player_pca <- function(df, type) {
-  
+  print(df)
   ## Data Cleaning
   df <- df%>%
     na.omit()
@@ -303,7 +302,8 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Getting Started", tabName = "a"),
       menuItem("Upload Data", tabName = "b", icon = icon("file")),
-      menuItem("Interactive Graphs", tabName = "c")
+      menuItem("Interactive Graphs", tabName = "c"),
+      menuItem("Help", tabName = "d", icon = icon("question-circle"))
     )
   ),
   
@@ -312,6 +312,12 @@ ui <- dashboardPage(
       tabItem(tabName = "a", 
               h2("Getting Started"),
               br(),
+              
+              
+              ## NEW SECTION: Pitcher/Hitter Radio Button
+              h3(icon("baseball"), "Select Pitcher or Hitter"),
+              p("Before starting, make sure to choose either ", strong("Pitcher"), " or ", strong("Hitter"), " at the top of the dashboard."),
+              p("This selection determines which type of player stats you'll be working with."),
               
               h3("Understanding the Data"),
               p("• The default dataset includes seasons from ", strong("2015 to 2023"), "."),
@@ -352,20 +358,10 @@ ui <- dashboardPage(
               p("• The app will perform PCA (Principal Component Analysis) to visualize player performance."),
               br(),
               
-              h3(icon("file-arrow-down"),"View and Download Summary"),
-              p("• Visit the ", strong("'Summary'"), " page to:"),
-              tags$ul(
-                tags$li("Review combined data from 2015–2023 plus any new years you added."),
-                tags$li("Download a full combined CSV file for future use.")
-              ),
-              br(),
-              
-              h3("Reminder About Missing Years"),
-              p("• If you skipped a year (e.g., never ran the app in 2025), and now want 2026:"),
-              tags$ul(
-                tags$li("The app will prompt you to scrape and upload 2025 first."),
-                tags$li("This ensures the full dataset is clean, complete, and consistent.")
-              )
+              ## NEW SECTION: Help Guide
+              h3(icon("circle-info"), "Need Help?"),
+              p("We've added a built-in ", strong("Help Guide"), " to walk you through every step of the app."),
+              p("Use it to learn how to scrape data, upload files, and interpret PCA results.")
       ),
       tabItem(tabName = "b", 
               fileInput("file1", "Choose CSV File", accept = ".csv"),
@@ -378,6 +374,10 @@ ui <- dashboardPage(
                              selectInput("ycol", "Y Variable", choices = NULL),
                              selectInput("startYear", "Select a start Year", choices = NULL),
                              selectInput("endYear", "Select an end Year", choices = NULL),
+                             
+                             checkboxInput("showLabels", "Show Labels", TRUE),
+                             # For controlling the density curve bandwidth
+                             sliderInput("bw", "Density Bandwidth:", min = 0.1, max = 3, value = 1, step = 0.1),
                              
                              conditionalPanel(
                                condition = "input.type == 'pitcher'",
@@ -392,10 +392,7 @@ ui <- dashboardPage(
                                checkboxGroupInput("selected_hitters_players", 
                                                   "Select Hitters to Display:",
                                                   choices = NULL)
-                             ),
-                             checkboxInput("showLabels", "Show Labels", TRUE),
-                             # For controlling the density curve bandwidth
-                             sliderInput("bw", "Density Bandwidth:", min = 0.1, max = 3, value = 1, step = 0.1)
+                             )
                 ),
                 
                 mainPanel(
@@ -440,7 +437,11 @@ ui <- dashboardPage(
                 ),
                 
               )
-      )
+      ),
+      tabItem(tabName = "d",
+                includeMarkdown("doc/Stats User Help Guide.md")
+        )
+      
     ))
 )
 
@@ -509,24 +510,26 @@ server <- function(input, output, session) {
     read.csv(file$datapath)
   })
   
-  # combine both datasets
+  # combine both web-scrapped datasets
   combined_data <- reactive({
     req(input$file1)
     req(input$type)  # Ensure type updates this reactive
     new_data <- read.csv(input$file1$datapath)
-    
-    full_join(get_player_athletic_stats(input$year, input$type), get_player_edge_stats(input$year, new_data, input$type), by = "Name")
+    full_join(get_player_athletic_stats(input$year, input$type), 
+              get_player_edge_stats(input$year, new_data, input$type), by = "Name")
   })
   
   # Check whether a file is uploaded and switch accordingly
   PlayerUpload <- reactive({
     req(input$type)  # Ensure type updates this reactive
-    base_data <- Rendering_Data(input$type)
+    base_data <- Rendering_Data(input$type)  # Default dataset(2015-2023)
+    colnames(base_data) <- gsub("[%.]", "", colnames(base_data))
     if (!is.null(input$file1)) {
-      new_data <- combined_data()  # This should also depend on input$type
+      new_data <- combined_data()  # Depend on input$type
+      colnames(new_data) <- gsub("[%.]", "", colnames(new_data))
       binded <- bind_rows(base_data, new_data)
     } else {
-      binded <- base_data
+        binded <- base_data
     }
     
     perform_player_pca(binded, input$type)
@@ -632,15 +635,15 @@ server <- function(input, output, session) {
   # Updates desnity plots based on the button the user clicks
   
   observeEvent(input$btn_density1, {
-    density_plot(create_density_plot(filtered_data(), "PC1", "PC1", paste0("Density for ",  tools::toTitleCase(input$type)), input$bw))
+    density_plot(create_density_plot(filtered_data(), "PC1", "PC1", paste0("PC1: Density for ",  tools::toTitleCase(input$type)), input$bw))
   })
   
   observeEvent(input$btn_density2, {
-    density_plot(create_density_plot(filtered_data(), "PC2", "PC2", paste0("Density for ",  tools::toTitleCase(input$type)), input$bw))
+    density_plot(create_density_plot(filtered_data(), "PC2", "PC2", paste0("PC2: Density for ",  tools::toTitleCase(input$type)), input$bw))
   })
   
   observeEvent(input$btn_density3, {
-    density_plot(create_density_plot(filtered_data(), "PC3", "PC3", paste0("Density for ",  tools::toTitleCase(input$type)), input$bw))
+    density_plot(create_density_plot(filtered_data(), "PC3", "PC3", paste0("PC3: Density for ",  tools::toTitleCase(input$type)), input$bw))
   })
   
   # Renders density plot
@@ -728,15 +731,15 @@ server <- function(input, output, session) {
   
   # Updates hover plots or PC plots over time 
   observeEvent(input$btn_pc1, {
-    current_plot(create_pc_plotly(filtered_data(), "PC1", "PC1", paste0("Hover Plot for ",  tools::toTitleCase(input$type))))
+    current_plot(create_pc_plotly(filtered_data(), "PC1", "PC1", paste0("PC1: Hover Plot for ",  tools::toTitleCase(input$type))))
   })
   
   observeEvent(input$btn_pc2, {
-    current_plot(create_pc_plotly(filtered_data(), "PC2", "PC2", paste0("Hover Plot for ",  tools::toTitleCase(input$type))))
+    current_plot(create_pc_plotly(filtered_data(), "PC2", "PC2", paste0("PC2: Hover Plot for ",  tools::toTitleCase(input$type))))
   })
   
   observeEvent(input$btn_pc3, {
-    current_plot(create_pc_plotly(filtered_data(), "PC3", "PC3", paste0("Hover Plot for ",  tools::toTitleCase(input$type))))
+    current_plot(create_pc_plotly(filtered_data(), "PC3", "PC3", paste0("PC3: Hover Plot for ",  tools::toTitleCase(input$type))))
   })
   
   # Renders hover plot 
