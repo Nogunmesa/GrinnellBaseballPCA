@@ -19,7 +19,7 @@ jobs:
           quarto --version
 
       - name: Deploy to shinyapps.io using custom action
-        uses: docker://ghcr.io/nogunmesa/shinyapps-deploy-github-action:latest
+        uses: nogunmesa/shinyapps-deploy-github-action@main
         with:
           appName: GrinnellBaseballPCA
           accountName: baseballteam
