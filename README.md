@@ -1,3 +1,4 @@
+[![Deploy to shinyapps.io](https://github.com/Nogunmesa/GrinnellBaseballPCA/actions/workflows/deploy.yml/badge.svg)](https://github.com/Nogunmesa/GrinnellBaseballPCA/actions/workflows/deploy.yml)
 # GrinnellBaseballPCA
 [VISIT OUR DEPLOYED PRODUCT](https://baseballteam.shinyapps.io/Final330App/)
 
