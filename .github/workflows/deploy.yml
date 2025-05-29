@@ -29,4 +29,4 @@ jobs:
           SHINYAPPS_SECRET: ${{ secrets.SHINYAPPS_SECRET }}
         run: |
           Rscript -e "rsconnect::setAccountInfo(name='baseballteam', token=Sys.getenv('SHINYAPPS_TOKEN'), secret=Sys.getenv('SHINYAPPS_SECRET'))"
-          Rscript -e "rsconnect::deployApp(appName='GrinnellBaseballPCA', appId=14845397, forceUpdate=TRUE)"
+          Rscript -e "rsconnect::deployApp(appName='GrinnellBaseballPCA', appId= 14845663, forceUpdate=TRUE)"
