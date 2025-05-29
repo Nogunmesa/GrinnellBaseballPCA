@@ -1,6 +1,6 @@
 [![Deploy to shinyapps.io](https://github.com/Nogunmesa/GrinnellBaseballPCA/actions/workflows/deploy.yml/badge.svg)](https://github.com/Nogunmesa/GrinnellBaseballPCA/actions/workflows/deploy.yml)
 # GrinnellBaseballPCA
-[VISIT OUR DEPLOYED PRODUCT](https://baseballteam.shinyapps.io/Final330App/)
+[VISIT OUR DEPLOYED PRODUCT](https://baseballteam.shinyapps.io/GrinnellBaseballPCA/)
 
 This R project analyzes baseball pitcher and hitter statistics using Principal Component Analysis (PCA). This repo includes data scraping from inside edge.com and Grinnell Athletics Website, data preprocessing, PCA visualization, and interactive analysis tools to explore player performance and trends within the Grinnell College baseball team.
 
